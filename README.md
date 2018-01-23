@@ -19,55 +19,44 @@ If you use this code/model for your research, please cite the following paper:
 
 ## Installation Guide
 
-### Step 1: Clone the repository
-```
-$ git clone https://github.com/sadeepj/crfasrnn_keras.git
-```
-The root directory of the clone will be referred to as `crfasrnn_keras` hereafter.
+### 1.1  Install dependencies
 
-### Step 2: Install dependencies
-
-**Note**: If you are using a Python virtualenv, make sure it is activated before running each command in this guide.
-
-Use the `requirements.txt` file (or `requirements_gpu.txt`, if you have a GPU device) in this repository to install all the dependencies via `pip`:
+Install [Tensorflow](https://www.tensorflow.org/install/) and [Keras](https://keras.io/#installation), following the respective installation guides. You will need to install Keras with HDF5/h5py if you plan to use the provided trained model. After installing these two packages, run the following commands to make sure they are properly installed:
 ```
-$ cd crfasrnn_keras
-$ pip install -r requirements.txt  # If you have a GPU device, use requirements_gpu.txt instead
-```
-As you can notice from the contents of `requirements.txt`, we only depend on `tensorflow`, `keras`, and `h5py`. Additionally, `Pillow` is required for running the demo.
-After installing the dependencies, run the following commands to make sure they are properly installed:
-```
+# First, activate the correct Python virtualenv if you used one during Tensorflow/Keras installation
+$ source /home/user/tensorflow_virtualenv/bin/activate  
 $ python
 >>> import tensorflow
 >>> import keras
 ```
 You should not see any errors while importing `tensorflow` and `keras` above.
 
-### Step 3: Build CRF-RNN custom op C++ code
+### 1.2  Build CRF-RNN custom C++ code
 
-Run `make` inside the `crfasrnn_keras/src/cpp` directory:
+Checkout the code in this repository, activate the Tensorflow/Keras virtualenv (if you used one), and run the `compile.sh` script in the `cpp` directory. That is, run the following commands:
 ```
-$ cd crfasrnn_keras/src/cpp
-$ make
+$ git clone https://github.com/sadeepj/crfasrnn_keras.git
+$ cd crfasrnn_keras/cpp
+$ source /home/user/tensorflow_virtualenv/bin/activate
+$ ./compile.sh
 ``` 
-Note that the `python` command in the console should refer to the Python interpreter associated with your Tensorflow installation before running the `make` command above.
+If the build succeeds, you will see a new file named `high_dim_filter.so`. If it fails, please see the comments inside the `compile.sh` file for help. You could also refer to the official Tensorflow guide for [building a custom op](https://www.tensorflow.org/extend/adding_an_op#build_the_op_library).
 
-You will get a new file named `high_dim_filter.so` from this build. If it fails, refer to the official Tensorflow guide for [building a custom op](https://www.tensorflow.org/extend/adding_an_op#build_the_op_library) for help.
+*Note*: This script will not work on Windows OS. If you are on Windows, please check [this issue](https://github.com/tensorflow/models/issues/1103) and the comments therein. The official Tensorflow guide for building a custom op does not yet include build instructions for Windows.
 
-**Note**: This make script works on Linux and macOS, but not on Windows OS. If you are on Windows, please check [this issue](https://github.com/tensorflow/models/issues/1103) and the comments therein for build instructions. The official Tensorflow guide for building a custom op does not yet include build instructions for Windows.
-
-### Step 4: Download the pre-trained model weights
+### 1.3  Download the pre-trained model weights
 
 Download the model weights from [here](https://goo.gl/ciEYZi) and place it in the `crfasrnn_keras` directory with the file name `crfrnn_keras_model.h5`.
 
-### Step 5: Run the demo
+### 1.4  Run the demo
 ```
 $ cd crfasrnn_keras
-$ python run_demo.py
+$ python run_demo.py  # Make sure that the correct virtualenv is already activated
 ```
-If all goes well, you will see the segmentation results in a file named "labels.png".
+If everything goes well, you will see the segmentation results in a file named "labels.png"
 
 
 ## Limitations of the Current Version
 1. Currently, some operations in the CRF-RNN layer can only run on the CPU. An all-GPU version will be released soon.
-2. Current implementation of CrfRnnLayer only supports batch_size == 1
+2. The `crfrnn_keras_model.h5` model was directly converted from the [Caffe model](https://github.com/torrvision/crfasrnn). However, training new models entirely from Keras is possible too.
+3. Current implementation of CrfRnnLayer only supports batch_size == 1
